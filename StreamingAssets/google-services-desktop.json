@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "899217889239",
+    "project_id": "mindcare-b38c5",
+    "storage_bucket": "mindcare-b38c5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:899217889239:android:9827bb04c1ebffa7271d92",
+        "android_client_info": {
+          "package_name": "com.Almavue.MindCare"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBK_9FAnnhEIaqVRXOmIdLzjATnmqF9kZY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
