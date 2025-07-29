@@ -56,7 +56,7 @@ function SaveUserProfile(uid, name, age, gender, language, country) {
   db.collection("users").doc(uid).set(profileData, { merge: true })
     .then(() => {
       console.log("Profile saved:", uid);
-     SendMessage("AuthFlowManager", "OnUserProfileSaved", uid);
+     SafeSendMessage("AuthFlowManager", "OnUserProfileSaved", uid);
     })
     .catch((error) => {
       console.error("Failed to save profile:", error);
@@ -70,10 +70,10 @@ function CheckUserExists(uid) {
     .then((doc) => {
       if (doc.exists) {
         console.log("User exists:", uid);
-        SendMessage("AuthFlowManager", "OnUserProfileExists", uid);
+        SafeSendMessage("AuthFlowManager", "OnUserProfileExists", uid);
       } else {
         console.log("User does not exist:", uid);
-        SendMessage("AuthFlowManager", "OnUserProfileNotFound", uid);
+        SafeSendMessage("AuthFlowManager", "OnUserProfileNotFound", uid);
       }
     })
     .catch((error) => {
