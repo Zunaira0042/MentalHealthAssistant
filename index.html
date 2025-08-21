@@ -3,52 +3,127 @@
 <head>
     <meta charset="utf-8">
     <title>MindCare WebGL</title>
-
-    <!--  Prevent favicon 404 error -->
     <link rel="icon" href="data:,">
 
-    <!--  Firebase Browser SDK (Compat) -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
+ <!-- Allow Stripe payments inside iframe/new tab -->
+  <meta http-equiv="Permissions-Policy" content="payment=(self 'https://checkout.stripe.com')">
+
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+ <!-- Calendly embed script -->
+<script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript"></script>
+
+<script>
+  // Unity calls this to open Calendly
+  function openCalendlyPopup(url) {
+    if (typeof Calendly !== "undefined" && Calendly.initPopupWidget) {
+      Calendly.initPopupWidget({ url: url });
+    } else {
+      console.error("Calendly not loaded yet.");
+    }
+    return false;
+  }
+
+  // Listen for Calendly messages (events)
+  window.addEventListener("message", function(e) {
+    if (e.data && e.data.event && e.data.event.indexOf("calendly.") === 0) {
+      console.log("Calendly event:", e.data);
+
+      if (e.data.event ==="calendly.date_and_time_selected") {
+        if (typeof SendMessage !== "undefined") {
+          SendMessage("BookingCordinator", "OnCalendlyEvent", "");
+        }
+      }
+    }
+  });
+</script>
+
+<style>
+ /* Overlay should cover full viewport */
+.calendly-overlay {
+  z-index: 999999 !important;
+  position: fixed !important;
+  top: 0; left: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Popup box (the iframe container) */
+.calendly-popup,
+.calendly-popup iframe {
+  z-index: 1000000 !important;
+  position: fixed !important;
+  width: 1800px !important;
+  height:600px !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important; /* perfectly center */
+  border-radius: 10px; /* optional: rounded edges */
+  box-shadow: 0 0 20px rgba(0,0,0,0.3); /* optional: soft shadow */
+}
+/* Keep Unity below */
+#unity-canvas, #unityContainer {
+  z-index: 1 !important;
+  position: relative !important;
+}
+</style>
+
+
+  //  Example: open Stripe checkout safely
+    function openStripeCheckout(sessionUrl) {
+      // Prefer new tab (avoids iframe blocking in Facebook / in-app browsers)
+      window.open(sessionUrl, "_blank");
+    }
+  </script>
     <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyAQL8Y9xuKmMQ3ssER5NDVp86XAGhXkh5w",
-        authDomain: "mindcare-b38c5.firebaseapp.com",
-        projectId: "mindcare-b38c5",
-        appId: "1:899217889239:web:3e1e02654a702926271d92"
-      };
-      firebase.initializeApp(firebaseConfig);
-       firebase.firestore().settings({ persistence: false });
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQL8Y9xuKmMQ3ssER5NDVp86XAGhXkh5w",
+            authDomain: "mindcare-b38c5.firebaseapp.com",
+            projectId: "mindcare-b38c5",
+            appId: "1:899217889239:web:3e1e02654a702926271d92"
+        };
+        firebase.initializeApp(firebaseConfig);
+        firebase.firestore().settings({ persistence: false });
+
+        // Called by Unity to open Stripe checkout
+        function OpenStripeCheckout(sessionId) {
+            const stripe = Stripe("pk_test_51LhW5XDyswlPskXDxMdm3gYNNoBOSPj9yGraZLRi4VgHHwYwyPIMoPpgmnmCJQIZErHQHMR0Ps4QssigcMkah0nT00xnSzNaDY");
+            stripe.redirectToCheckout({ sessionId: sessionId })
+                .then(function(result) {
+                    if (result.error) alert("Payment error: " + result.error.message);
+                });
+        }
     </script>
-    <script src="firebase-interop.js"></script>
+
     <style>
-      body { margin: 0; overflow: hidden; background: #000; }
-      canvas { width: 100%; height: 100%; }
+        body { margin: 0; overflow: hidden; background: #000; }
+        canvas { width: 100%; height: 100%; }
     </style>
 </head>
 <body>
     <canvas id="unity-canvas"></canvas>
 
-    <!-- ✅ Unity Loader -->
-   <script src="Build/MindCare.loader.js"></script>
-
+    <!-- Unity loader -->
+    <script src="Build/MindCare.loader.js"></script>
     <script>
-      var canvas = document.querySelector("#unity-canvas");
-      createUnityInstance(canvas, {
-         dataUrl: "Build/MindCare.data",
-  frameworkUrl: "Build/MindCare.framework.js",
-  codeUrl: "Build/MindCare.wasm",
-  streamingAssetsUrl: "StreamingAssets",
-  companyName: "Almavue",
-  productName: "MindCare",
-  productVersion: "0.1"
-      }).then((instance) => {
-        window.gameInstance = instance;
-      }).catch((message) => {
-        alert(message);
-      });
+        var canvas = document.querySelector("#unity-canvas");
+        createUnityInstance(canvas, {
+            dataUrl: "Build/MindCare.data",
+            frameworkUrl: "Build/MindCare.framework.js",
+            codeUrl: "Build/MindCare.wasm",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "Almavue",
+            productName: "MindCare",
+            productVersion: "0.1"
+        }).then((instance) => {
+            window.gameInstance = instance;
+        }).catch((message) => { alert(message); });
     </script>
 </body>
 </html>

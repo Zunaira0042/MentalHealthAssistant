@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Payment Success</title>
+</head>
+<body>
+  <h2>Processing your payment confirmation...</h2>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get("session_id");
+
+    // Notify Unity WebGL build if running
+ // Use only SendMessage if available
+    if (typeof SendMessage !== "undefined") {
+      SendMessage("BookingCoordinator", "OnStripePaymentSuccess", sessionId);
+    } else {
+      console.log("Unity SendMessage not found. Payment cancel page loaded standalone.");
+    }
+
+    // Redirect back to your main Unity page after 2 seconds
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 2000);
+  </script>
+</body>
+</html>
